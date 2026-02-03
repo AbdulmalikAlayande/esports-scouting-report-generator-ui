@@ -41,7 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 # App
-agent-reference
-agent-reference/
-agent-reference/*
-agent-reference/**
+/agent-reference
+/designs
