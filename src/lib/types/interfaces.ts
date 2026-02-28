@@ -12,6 +12,12 @@ export type ReportStatusResponse = {
     createdAt: string;
     reportAvailable: boolean;
     completedAt: string;
+
+    // Additive contract fields (optional for compatibility)
+    workflowState?: string;
+    errorCode?: string;
+    retryable?: boolean;
+    contractVersion?: string;
 }
 
 export type ScoutingReportResponse = {
@@ -21,6 +27,17 @@ export type ScoutingReportResponse = {
     summary: string;
     createdAt: string;
     sections: ReportSections[]
+
+    // Additive contract fields (optional for compatibility)
+    contractVersion?: string;
+    modelVersion?: string;
+    featureVersion?: string;
+    generatedAt?: string;
+    lineage?: {
+        requestId?: string;
+        jobId?: number | null;
+        attempt?: number;
+    };
 }
 
 export type ReportSections = {
