@@ -22,38 +22,46 @@ interface ScoutingLoadingProps {
 }
 
 const LOADING_STEPS = [
-    { id: 'pending', label: 'Ingesting GRID Match Data', icon: Database },
-    { id: 'processing', label: 'Parsing Round-by-Round Events', icon: Search },
-    { id: 'analyzing', label: 'Calculating Performance Velocity', icon: Cpu },
-    { id: 'generating', label: 'Synthesizing Strategic Insights', icon: BarChart3 },
-    { id: 'finalizing', label: 'Finalizing Intelligence Brief', icon: ShieldCheck },
+    { id: 'ingest', label: 'Ingesting GRID Match Data', icon: Database },
+    { id: 'parse', label: 'Parsing Round-by-Round Events', icon: Search },
+    { id: 'velocity', label: 'Calculating Performance Velocity', icon: Cpu },
+    { id: 'synthesize', label: 'Synthesizing Strategic Insights', icon: BarChart3 },
+    { id: 'waiting', label: 'Waiting for Analysis Engine', icon: Clock },
+    { id: 'finalize', label: 'Finalizing Intelligence Brief', icon: ShieldCheck },
 ];
 
 export function ScoutingLoading({ progress: externalProgress, currentStep: externalStep, onCancel }: ScoutingLoadingProps) {
-    const [internalProgress, setInternalProgress] = useState(0);
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const [isMounted, setIsMounted] = useState(false);
 
-    // Uses external progress if provided, otherwise simulate
-    const progress = externalProgress ?? internalProgress;
-    const currentStepIndex = useMemo(() => {
-        if (externalStep) {
-            const idx = LOADING_STEPS.findIndex(s => s.id === externalStep);
-            return idx !== -1 ? idx : 0;
-        }
-        const idx = Math.floor((progress / 100) * LOADING_STEPS.length);
-        return Math.min(idx, LOADING_STEPS.length - 1);
-    }, [externalStep, progress]);
+    // Ensure we only run client-side logic after mount to avoid hydration mismatch
     useEffect(() => {
-        if (externalProgress === undefined) {
-            const interval = setInterval(() => {
-                setInternalProgress((prev) => {
-                    if (prev >= 100) return 100;
-                    const increment = Math.random() * 5;
-                    return Math.min(prev + increment, 100);
-                });
-            }, 300);
-            return () => clearInterval(interval);
-        }
-    }, [externalProgress]);
+        setIsMounted(true);
+    }, []);
+
+    // Progress through steps every 3 seconds, stay on "waiting" step if backend still queued
+    useEffect(() => {
+        if (!isMounted) return;
+        
+        const interval = setInterval(() => {
+            setCurrentStepIndex((prev) => {
+                // If we're at the "waiting" step (index 4) and backend is still queued, stay there
+                if (prev === 4 && externalProgress === 0) {
+                    return prev; // Stay on "Waiting for Analysis Engine"
+                }
+                // Otherwise progress to next step, but don't exceed the last step
+                if (prev < LOADING_STEPS.length - 1) {
+                    return prev + 1;
+                }
+                return prev;
+            });
+        }, 3000);
+        
+        return () => clearInterval(interval);
+    }, [isMounted, externalProgress]);
+
+    // Calculate progress based on current step
+    const progress = ((currentStepIndex + 1) / LOADING_STEPS.length) * 100;
 
 
     return (
