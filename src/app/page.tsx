@@ -46,8 +46,8 @@ export default function Home() {
             console.log('Report request created:', requestId);
 
             const finalStatus = await pollForReport(requestId, {
-                interval: 3000, // Poll every 3 seconds
-                maxAttempts: 60, // 3 minutes max
+                interval: 30000, // Poll every 3 seconds
+                maxAttempts: 2000, // 3 minutes max
                 onProgress: (status) => {
                     logger.info('Poll update:', status);
                     setLoadingProgress(status.progress);
