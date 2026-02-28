@@ -9,7 +9,8 @@ import {
     Cpu, 
     BarChart3, 
     CheckCircle2,
-    XCircle
+    XCircle,
+    Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/icon/logo";
